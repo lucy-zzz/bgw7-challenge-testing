@@ -1,3 +1,4 @@
+//go:generate mockgen -destination=mocks/mock_products_map.go -package=mocks app/internal RepositoryProducts
 package repository
 
 import "app/internal"
