@@ -1,14 +1,14 @@
 package handler_test
 
 import (
+	"app/internal"
 	"app/internal/handler"
 	"app/internal/repository/mocks"
-	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -18,14 +18,47 @@ func Test_Get(t *testing.T) {
 	defer ctrl.Finish()
 	rp := mocks.NewMockRepositoryProducts(ctrl)
 
-	t.Run("Should search with id", func(t *testing.T) {
+	t.Run("Should search without id", func(t *testing.T) {
 		r := httptest.NewRequest("GET", "/", nil)
 		w := httptest.NewRecorder()
-		ctx := chi.NewRouteContext()
-		rp.EXPECT().SearchProducts(gomock.Any())
-		r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
-		ctx.URLParams.Add("id", "1")
+		p := map[int]internal.Product{1: {Id: 1, ProductAttributes: internal.ProductAttributes{SellerId: 1, Price: 0.1}}}
+		rp.EXPECT().SearchProducts(gomock.Any()).Return(p, nil)
 		expectedStatus := http.StatusOK
+
+		h := handler.NewProductsDefault(rp).Get()
+		h.ServeHTTP(w, r)
+
+		assert.Equal(t, expectedStatus, w.Code)
+	})
+
+	t.Run("Should search with id", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/?id=1", nil)
+		w := httptest.NewRecorder()
+		rp.EXPECT().SearchProducts(gomock.Any())
+		expectedStatus := http.StatusOK
+
+		h := handler.NewProductsDefault(rp).Get()
+		h.ServeHTTP(w, r)
+
+		assert.Equal(t, expectedStatus, w.Code)
+	})
+
+	t.Run("Should throw error at repo", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/?id=1", nil)
+		w := httptest.NewRecorder()
+		rp.EXPECT().SearchProducts(gomock.Any()).Return(nil, errors.New("errouuu"))
+		expectedStatus := http.StatusInternalServerError
+
+		h := handler.NewProductsDefault(rp).Get()
+		h.ServeHTTP(w, r)
+
+		assert.Equal(t, expectedStatus, w.Code)
+	})
+
+	t.Run("Should search with id and id is not a number", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/?id=abc", nil)
+		w := httptest.NewRecorder()
+		expectedStatus := http.StatusBadRequest
 
 		h := handler.NewProductsDefault(rp).Get()
 		h.ServeHTTP(w, r)
