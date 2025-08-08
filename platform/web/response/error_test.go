@@ -2,6 +2,7 @@ package response_test
 
 import (
 	"app/platform/web/response"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -47,6 +48,26 @@ func TestError(t *testing.T) {
 		require.Equal(t, expectedCode, rr.Code)
 		require.Equal(t, expectedBody, rr.Body.String())
 		require.Equal(t, expectedHeaders, rr.Header())
+	})
+
+	t.Run("should throw marshal error", func(t *testing.T) {
+		realMarshal := response.JsonMarshal
+		defer func() { response.JsonMarshal = realMarshal }()
+
+		response.JsonMarshal = func(v interface{}) ([]byte, error) {
+			return nil, errors.New("marshal error")
+		}
+
+		rr := httptest.NewRecorder()
+		response.Error(rr, http.StatusBadRequest, "some error")
+
+		if rr.Code != http.StatusInternalServerError {
+			t.Errorf("expected status code 500, got %d", rr.Code)
+		}
+
+		if rr.Body.Len() != 0 {
+			t.Errorf("expected empty body on marshal error, got %s", rr.Body.String())
+		}
 	})
 }
 
