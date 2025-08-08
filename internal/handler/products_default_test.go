@@ -65,32 +65,4 @@ func Test_Get(t *testing.T) {
 
 		assert.Equal(t, expectedStatus, w.Code)
 	})
-
-	// t.Run("Should not find vehicles when trying to get average max speed", func(t *testing.T) {
-	// 	r := httptest.NewRequest("GET", "/", nil)
-	// 	w := httptest.NewRecorder()
-	// 	ctx := chi.NewRouteContext()
-	// 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
-	// 	ctx.URLParams.Add("brand", "not found")
-	// 	expectedStatus := http.StatusNotFound
-
-	// 	h := handler.NewHandlerVehicle(sv).AverageMaxSpeedByBrand()
-	// 	h.ServeHTTP(w, r)
-
-	// 	assert.Equal(t, expectedStatus, w.Code)
-	// })
-
-	// t.Run("Should throw internal server when trying to get average max speed", func(t *testing.T) {
-	// 	r := httptest.NewRequest("GET", "/", nil)
-	// 	w := httptest.NewRecorder()
-	// 	ctx := chi.NewRouteContext()
-	// 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, ctx))
-	// 	ctx.URLParams.Add("brand", "err")
-	// 	expectedStatus := http.StatusInternalServerError
-
-	// 	h := handler.NewHandlerVehicle(sv).AverageMaxSpeedByBrand()
-	// 	h.ServeHTTP(w, r)
-
-	// 	assert.Equal(t, expectedStatus, w.Code)
-	// })
 }
