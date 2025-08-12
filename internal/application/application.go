@@ -1,3 +1,5 @@
+//go:generate mockgen -destination=mocks/mock_application.go -package=mocks app/internal/application Application
+
 package application
 
 // Application is an interface that represents the application.

@@ -5,7 +5,7 @@ MIN_COVERAGE=80
 
 default: start
 
-start: generate-swagger
+start: 
 	go run cmd/main.go
 
 
